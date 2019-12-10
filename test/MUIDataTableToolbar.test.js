@@ -6,7 +6,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import ViewColumnIcon from '@material-ui/icons/ViewColumn';
 import { assert } from 'chai';
 import { mount, shallow } from 'enzyme';
-import React from 'react';
+import * as React from 'react';
 import { spy } from 'sinon';
 import TableSearch from '../src/components/TableSearch';
 import TableToolbar from '../src/components/TableToolbar';

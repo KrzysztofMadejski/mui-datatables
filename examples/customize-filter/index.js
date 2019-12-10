@@ -1,5 +1,5 @@
 import { FormGroup, FormLabel, TextField, Checkbox, FormControlLabel, Grid } from '@material-ui/core';
-import React from 'react';
+import * as React from 'react';
 import MUIDataTable from '../../src';
 
 class Example extends React.Component {

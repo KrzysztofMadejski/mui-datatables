@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import MUIDataTable from '../../src/';
 import {MuiThemeProvider, createMuiTheme} from '@material-ui/core';
 

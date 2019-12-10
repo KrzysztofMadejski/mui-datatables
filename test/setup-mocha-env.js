@@ -1,5 +1,5 @@
 import Enzyme from 'enzyme';
-import React from 'react';
+import * as React from 'react';
 import Adapter from 'enzyme-adapter-react-16';
 
 /* required when running >= 16.0 */

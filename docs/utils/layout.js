@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import * as React from 'react';
+import * as PropTypes from 'prop-types';
 import Head from 'next/head';
 import Typography from '@material-ui/core/Typography';
 import AppBar from '@material-ui/core/AppBar';

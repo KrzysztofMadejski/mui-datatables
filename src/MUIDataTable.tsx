@@ -7,8 +7,8 @@ import cloneDeep from 'lodash.clonedeep';
 import find from 'lodash.find';
 import isUndefined from 'lodash.isundefined';
 import merge from 'lodash.merge';
-import PropTypes from 'prop-types';
-import React from 'react';
+import * as PropTypes from 'prop-types';
+import * as React from 'react';
 import TableBody from './components/TableBody';
 import TableFilterList from './components/TableFilterList';
 import TableFooter from './components/TableFooter';
@@ -86,7 +86,7 @@ const hasToolbarItem = (options, title) => {
   return !isUndefined(find(TOOLBAR_ITEMS, i => options[i]));
 };
 
-class MUIDataTable extends React.Component {
+class MUIDataTable extends React.Component<any,any> {
   static propTypes = {
     /** Title of the table */
     title: PropTypes.oneOfType([PropTypes.string, PropTypes.element]).isRequired,

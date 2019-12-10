@@ -4,7 +4,7 @@ import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
 import { assert } from 'chai';
 import { mount, shallow } from 'enzyme';
-import React from 'react';
+import * as React from 'react';
 import { spy } from 'sinon';
 import TableFilter from '../src/components/TableFilter';
 import getTextLabels from '../src/textLabels';

@@ -1,4 +1,4 @@
-import React from 'react';
+import * as React from 'react';
 import Grow from '@material-ui/core/Grow';
 import TextField from '@material-ui/core/TextField';
 import IconButton from '@material-ui/core/IconButton';
