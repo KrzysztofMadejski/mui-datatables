@@ -1,9 +1,26 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
-import MuiPopover from '@material-ui/core/Popover';
+import MuiPopover, { PopoverOrigin, PopoverActions } from '@material-ui/core/Popover';
 import { findDOMNode } from 'react-dom';
 
-class Popover extends React.Component {
+interface PopoverProps {
+  className?: string;
+  trigger: React.ReactElement;
+  content: React.ReactElement;
+
+  refClose?: (closeCb: (cb: () => any) => void) => void;
+  refExit: () => void;
+}
+
+interface PopoverState {
+  open: boolean;
+}
+
+class Popover extends React.Component<PopoverProps, PopoverState> {
+  anchorEl: null | HTMLElement;
+  anchorReactEl: React.ReactInstance | null; // TODO use it instead of anchorEl in some places, or better rewrite handling of both
+  popoverActions: PopoverActions;
+
   state = {
     open: false,
   };
@@ -24,18 +41,18 @@ class Popover extends React.Component {
      * it affects the window height which would cause the Popover to in the wrong place
      */
     if (this.state.open === true) {
-      this.anchorEl = findDOMNode(this.anchorEl);
+      this.anchorEl = findDOMNode(this.anchorEl); // TODO mismatch in types here (argument should be anchorReactEl), I'd suggest rewriting all anchorEl handling
       this.popoverActions.updatePosition();
     }
   }
 
   handleClick = () => {
-    this.anchorEl = findDOMNode(this.anchorEl);
+    this.anchorEl = findDOMNode(this.anchorEl);  // TODO mismatch in types here
     this.setState({ open: true });
   };
 
-  handleRequestClose = cb => {
-    this.setState({ open: false }, cb && typeof cb === 'function' ? cb() : () => {});
+  handleRequestClose = () => {
+    this.setState({ open: false });
   };
 
   handleOnExit = () => {
@@ -45,14 +62,14 @@ class Popover extends React.Component {
   };
 
   render() {
-    const { className, placement, trigger, refExit, content, ...providedProps } = this.props;
+    const { className, trigger, refExit, content, ...providedProps } = this.props;
 
-    const transformOriginSpecs = {
+    const transformOriginSpecs: PopoverOrigin = {
       vertical: 'top',
       horizontal: 'center',
     };
 
-    const anchorOriginSpecs = {
+    const anchorOriginSpecs: PopoverOrigin = {
       vertical: 'bottom',
       horizontal: 'center',
     };
@@ -75,7 +92,7 @@ class Popover extends React.Component {
           onClose={this.handleRequestClose}
           onExited={this.handleOnExit}
           anchorEl={this.anchorEl}
-          ref={el => this.popoverEl}
+          ref={el => this.popoverEl} // TODO property popoverEl does not exist on Popover
           anchorOrigin={anchorOriginSpecs}
           transformOrigin={transformOriginSpecs}
           {...providedProps}>

@@ -1,0 +1,24 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist/", // path to output directory
+        "sourceMap": true, // allow sourcemap support
+        "strictNullChecks": true, // enable strict null checks as a best practice
+        "strict": false,
+        "module": "commonjs", // specify module code generation , es6?
+        "moduleResolution": "node",
+        "lib": [
+            "es6",
+            "dom"
+        ],
+        "jsx": "react", // use typescript to transpile jsx to js
+        "target": "es5", // specify ECMAScript target version
+        // "noImplicitAny": true,
+        // "allowJs": true,            // allow a partial TypeScript and JavaScript codebase
+        "declaration": true,
+        "declarationDir": "./dist",
+    },
+    "include": [
+        "./src/**/*.ts",
+        "./src/**/*.tsx",
+    ]
+}

@@ -1,38 +1,21 @@
-import babel from 'rollup-plugin-babel';
+import typescript from '@rollup/plugin-typescript';
 import commonjs from 'rollup-plugin-commonjs';
 import replace from 'rollup-plugin-replace';
 import uglify from 'rollup-plugin-uglify';
+import resolve from 'rollup-plugin-node-resolve';
 
 export default {
-  input: 'src/index.js',
+  input: 'src/index.ts',
   plugins: [
+    resolve({
+      extensions: [ '.js', '.jsx', '.ts', '.tsx' ], 
+    }),
     replace({
       'process.env.NODE_ENV': JSON.stringify('production'),
     }),
+    typescript(),
     commonjs({
       include: ['node_modules/**'],
-    }),
-    babel({
-      presets: [
-        'react',
-        [
-          'env',
-          {
-            targets: {
-              browsers: ['last 2 versions', 'ie >= 10'],
-            },
-            debug: false,
-            modules: false,
-          },
-        ],
-      ],
-      plugins: [
-        'external-helpers',
-        'transform-object-rest-spread',
-        'babel-plugin-transform-class-properties',
-        'transform-react-remove-prop-types',
-      ],
-      babelrc: false,
     }),
     uglify({
       compress: {

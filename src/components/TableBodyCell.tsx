@@ -1,9 +1,12 @@
 import * as React from 'react';
 import classNames from 'classnames';
 import TableCell from '@material-ui/core/TableCell';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, WithStyles } from '@material-ui/core/styles';
+import { MUIDataTableOptions } from '../index.d';
+import { string } from 'prop-types';
+import { CSSProperties } from '@material-ui/core/styles/withStyles';
 
-const defaultBodyCellStyles = theme => ({
+const defaultBodyCellStyles = (theme): Record<string, CSSProperties> => ({
   root: {},
   cellHide: {
     display: 'none',
@@ -11,11 +14,10 @@ const defaultBodyCellStyles = theme => ({
   stackedCommon: {
     [theme.breakpoints.down('sm')]: {
       display: 'inline-block',
+      whiteSpace: 'nowrap',
       fontSize: '16px',
       height: '24px',
-      whiteSpace: 'nowrap',
       width: 'calc(50% - 80px)',
-      whiteSpace: 'nowrap',
       '&:last-child': {
         borderBottom: 'none',
       },
@@ -33,10 +35,20 @@ const defaultBodyCellStyles = theme => ({
     [theme.breakpoints.down('sm')]: {
       width: '50%',
     },
-  },
+  }, 
 });
 
-class TableBodyCell extends React.Component {
+interface TableBodyCellProps extends WithStyles<typeof defaultBodyCellStyles> {
+  options: MUIDataTableOptions;
+  colIndex: number;
+  dataIndex: number;
+  rowIndex: number;  
+  className: string;
+  print: boolean;
+  columnHeader: string;
+}
+
+class TableBodyCell extends React.Component<TableBodyCellProps, {}> {
   handleClick = event => {
     const { colIndex, options, children, dataIndex, rowIndex } = this.props;
     if (options.onCellClick) {

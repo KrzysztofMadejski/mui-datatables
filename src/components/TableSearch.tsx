@@ -5,8 +5,11 @@ import SearchIcon from '@material-ui/icons/Search';
 import IconButton from '@material-ui/core/IconButton';
 import ClearIcon from '@material-ui/icons/Clear';
 import { withStyles } from '@material-ui/core/styles';
+import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
+import { NoState } from './NoState';
+import { MUIDataTableOptions } from '../index.d';
 
-const defaultSearchStyles = theme => ({
+const defaultSearchStyles = (theme): Record<string, CSSProperties> => ({
   main: {
     display: 'flex',
     flex: '1 0 auto',
@@ -26,8 +29,15 @@ const defaultSearchStyles = theme => ({
   },
 });
 
-class TableSearch extends React.Component {
-  handleTextChange = event => {
+interface TableSearchProps extends WithStyles<typeof defaultSearchStyles> {
+  onHide: () => void;
+  onSearch: (text: string) => void;
+  options: MUIDataTableOptions;
+  searchText: string | null;
+}
+
+class TableSearch extends React.Component<TableSearchProps, NoState> {
+  handleTextChange = (event:React.ChangeEvent<HTMLInputElement>): void => {
     this.props.onSearch(event.target.value);
   };
 
@@ -39,7 +49,7 @@ class TableSearch extends React.Component {
     document.removeEventListener('keydown', this.onKeyDown, false);
   }
 
-  onKeyDown = event => {
+  onKeyDown = (event: KeyboardEvent): void => {
     if (event.keyCode === 27) {
       this.props.onHide();
     }
@@ -50,19 +60,19 @@ class TableSearch extends React.Component {
 
     return (
       <Grow appear in={true} timeout={300}>
-        <div className={classes.main} ref={el => (this.rootRef = el)}>
+        <div className={classes.main}>
           <SearchIcon className={classes.searchIcon} />
           <TextField
             className={classes.searchText}
             autoFocus={true}
             InputProps={{
+              // @ts-ignore
               'data-test-id': options.textLabels.toolbar.search,
               'aria-label': options.textLabels.toolbar.search,
             }}
             value={searchText || ''}
             onChange={this.handleTextChange}
             fullWidth={true}
-            inputRef={el => (this.searchField = el)}
             placeholder={options.searchPlaceholder}
           />
           <IconButton className={classes.clearIcon} onClick={onHide}>

@@ -14,11 +14,14 @@ import ViewColumnIcon from '@material-ui/icons/ViewColumn';
 import FilterIcon from '@material-ui/icons/FilterList';
 import ReactToPrint from 'react-to-print';
 import find from 'lodash.find';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, Theme } from '@material-ui/core/styles';
 import { createCSVDownload, downloadCSV } from '../utils';
 import cloneDeep from 'lodash.clonedeep';
+import { WithStyles } from '@material-ui/core/styles/withStyles';
+import { MUIDataTableColumnState, FilterUpdateFunc, MUIDataTableOptions, DisplayData } from '../index.d';
 
-export const defaultToolbarStyles = theme => ({
+// TODO TS: how to handle theme.breakpoints.down('sm') without any here?
+export const defaultToolbarStyles = (theme: Theme): Record<string, any> => ({
   root: {},
   left: {
     flex: '1 1 auto',
@@ -55,8 +58,8 @@ export const defaultToolbarStyles = theme => ({
     },
     left: {
       // flex: "1 1 40%",
-      padding: '8px 0px',
     },
+    padding: '8px 0px',
     actions: {
       // flex: "1 1 60%",
       textAlign: 'right',
@@ -79,9 +82,37 @@ export const defaultToolbarStyles = theme => ({
   '@media screen and (max-width: 480px)': {},
 });
 
-class TableToolbar extends React.Component {
+interface TableToolbarProps extends WithStyles<typeof defaultToolbarStyles> {
+  columns: MUIDataTableColumnState[];
+  displayData: DisplayData;
+  data: Array<object | number[] | string[]>;
+  filterData?: any[][];
+  filterList?: string[][];
+  filterUpdate?: FilterUpdateFunc;
+  options: MUIDataTableOptions;
+  resetFilters?: () => void;
+  searchText: string | null;
+  searchTextUpdate: (text: string) => void;
+  searchClose: () => void;
+  setTableAction: (action: string) => void;
+  tableRef: () => React.ReactInstance;
+  title?: any;
+  toggleViewColumn: (index:number) => void;
+}
+
+interface TableToolbarState {
+  iconActive: string | null;
+  showSearch: boolean;
+  searchText: string | null;
+  prevIconActive: string | null,
+}
+
+
+class TableToolbar extends React.Component<TableToolbarProps, TableToolbarState> {
+  searchButton = React.createRef<any>();
   state = {
     iconActive: null,
+    prevIconActive: null,
     showSearch: Boolean(this.props.searchText || this.props.options.searchText || this.props.options.searchOpen),
     searchText: this.props.searchText || null,
   };
@@ -200,10 +231,10 @@ class TableToolbar extends React.Component {
       searchText: null,
     }));
 
-    this.searchButton.focus();
+    this.searchButton.current.focus();
   };
 
-  handleSearch = value => {
+  handleSearch = (value: string) => {
     this.setState({ searchText: value });
     this.props.searchTextUpdate(value);
   };
@@ -233,22 +264,22 @@ class TableToolbar extends React.Component {
             options.customSearchRender ? (
               options.customSearchRender(searchText, this.handleSearch, this.hideSearch, options)
             ) : (
-              <TableSearch
-                searchText={searchText}
-                onSearch={this.handleSearch}
-                onHide={this.hideSearch}
-                options={options}
-              />
-            )
+                <TableSearch
+                  searchText={searchText}
+                  onSearch={this.handleSearch}
+                  onHide={this.hideSearch}
+                  options={options}
+                />
+              )
           ) : typeof title !== 'string' ? (
             title
           ) : (
-            <div className={classes.titleRoot} aria-hidden={'true'}>
-              <Typography variant="h6" className={classes.titleText}>
-                {title}
-              </Typography>
-            </div>
-          )}
+                <div className={classes.titleRoot} aria-hidden={'true'}>
+                  <Typography variant="h6" className={classes.titleText}>
+                    {title}
+                  </Typography>
+                </div>
+              )}
         </div>
         <div className={classes.actions}>
           {options.search && (
@@ -256,7 +287,7 @@ class TableToolbar extends React.Component {
               <IconButton
                 aria-label={search}
                 data-testid={search + '-iconButton'}
-                buttonRef={el => (this.searchButton = el)}
+                buttonRef={this.searchButton}
                 classes={{ root: this.getActiveIcon(classes, 'search') }}
                 onClick={this.setActiveIcon.bind(null, 'search')}>
                 <SearchIcon />
@@ -289,7 +320,7 @@ class TableToolbar extends React.Component {
                     </Tooltip>
                   </span>
                 )}
-                content={() => this.props.tableRef()}
+                content={tableRef}
               />
             </span>
           )}
@@ -315,7 +346,7 @@ class TableToolbar extends React.Component {
           {options.filter && (
             <Popover
               refExit={this.setActiveIcon.bind(null)}
-              classes={{ paper: classes.filterPaper }}
+              classes={{ paper: classes.filterPaper }} // TODO classes does not exist on Popover
               trigger={
                 <Tooltip title={filterTable} disableFocusListener>
                   <IconButton

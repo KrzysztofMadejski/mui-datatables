@@ -2,8 +2,11 @@ import Chip from '@material-ui/core/Chip';
 import { withStyles } from '@material-ui/core/styles';
 import * as PropTypes from 'prop-types';
 import * as React from 'react';
+import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
+import { MUIDataTableOptions, FilterUpdateFunc, FilterCustomUpdatFunc, FilterCustomRenderFunc } from '../index.d';
+import { NoState } from './NoState';
 
-const defaultFilterListStyles = {
+const defaultFilterListStyles: Record<string, CSSProperties> = {
   root: {
     display: 'flex',
     justifyContent: 'left',
@@ -15,18 +18,25 @@ const defaultFilterListStyles = {
   },
 };
 
-class TableFilterList extends React.Component {
+interface TableFilterListProps extends WithStyles<typeof defaultFilterListStyles> {
+  columnNames: Array<{ name: string; filterType: string }>;
+  customFilterListUpdate: Array<FilterCustomUpdatFunc>;
+  filterList: string[][];
+  filterListRenderers: Array<FilterCustomRenderFunc>;
+  filterUpdate: FilterUpdateFunc;
+  options: MUIDataTableOptions;
+  serverSideFilterList: any[];
+}
+
+class TableFilterList extends React.Component<TableFilterListProps, NoState> {
   static propTypes = {
     /** Data used to filter table against */
     filterList: PropTypes.array.isRequired,
     /** Filter List value renderers */
     filterListRenderers: PropTypes.array.isRequired,
     /** Columns used to describe table */
-    columnNames: PropTypes.PropTypes.arrayOf(
-      PropTypes.oneOfType([
-        PropTypes.string,
-        PropTypes.shape({ name: PropTypes.string.isRequired, filterType: PropTypes.string }),
-      ]),
+    columnNames: PropTypes.arrayOf(
+      PropTypes.shape({ name: PropTypes.string.isRequired, filterType: PropTypes.string })
     ).isRequired,
     /** Callback to trigger filter update */
     onFilterUpdate: PropTypes.func,
@@ -47,7 +57,7 @@ class TableFilterList extends React.Component {
     const { serverSide } = this.props.options;
 
     const customFilterChipMultiValue = (customFilterItem, index, customFilterItemIndex, item, orig) => {
-      let label = '';
+      let label: string | string[] = '';
       const type = customFilterListUpdate[index] ? 'custom' : 'chip';
 
       if (Array.isArray(orig)) label = filterListRenderers[customFilterItemIndex](customFilterItem);
@@ -101,47 +111,47 @@ class TableFilterList extends React.Component {
       <div className={classes.root}>
         {serverSide
           ? serverSideFilterList.map((item, index) => {
-              const filterListRenderersValue = filterListRenderers[index](item);
+            const filterListRenderersValue = filterListRenderers[index](item);
 
-              if (columnNames[index].filterType === 'custom' && filterListRenderersValue) {
-                if (Array.isArray(filterListRenderersValue)) {
-                  return filterListRenderersValue.map((customFilterItem, customFilterItemIndex) =>
-                    customFilterChipMultiValue(
-                      customFilterItem,
-                      index,
-                      customFilterItemIndex,
-                      item,
-                      filterListRenderersValue,
-                    ),
-                  );
-                } else {
-                  return customFilterChipSingleValue(index, item);
-                }
+            if (columnNames[index].filterType === 'custom' && filterListRenderersValue) {
+              if (Array.isArray(filterListRenderersValue)) {
+                return filterListRenderersValue.map((customFilterItem, customFilterItemIndex) =>
+                  customFilterChipMultiValue(
+                    customFilterItem,
+                    index,
+                    customFilterItemIndex,
+                    item,
+                    filterListRenderersValue,
+                  ),
+                );
+              } else {
+                return customFilterChipSingleValue(index, item);
               }
+            }
 
-              return item.map((data, colIndex) => filterChip(index, data, colIndex));
-            })
+            return item.map((data, colIndex) => filterChip(index, data, colIndex));
+          })
           : filterList.map((item, index) => {
-              const customFilterListRenderersValue = filterListRenderers[index](item);
+            const customFilterListRenderersValue = filterListRenderers[index](item);
 
-              if (columnNames[index].filterType === 'custom' && customFilterListRenderersValue) {
-                if (Array.isArray(customFilterListRenderersValue)) {
-                  return customFilterListRenderersValue.map((customFilterItem, customFilterItemIndex) =>
-                    customFilterChipMultiValue(
-                      customFilterItem,
-                      index,
-                      customFilterItemIndex,
-                      item,
-                      customFilterListRenderersValue,
-                    ),
-                  );
-                } else {
-                  return customFilterChipSingleValue(index, item);
-                }
+            if (columnNames[index].filterType === 'custom' && customFilterListRenderersValue) {
+              if (Array.isArray(customFilterListRenderersValue)) {
+                return customFilterListRenderersValue.map((customFilterItem, customFilterItemIndex) =>
+                  customFilterChipMultiValue(
+                    customFilterItem,
+                    index,
+                    customFilterItemIndex,
+                    item,
+                    customFilterListRenderersValue,
+                  ),
+                );
+              } else {
+                return customFilterChipSingleValue(index, item);
               }
+            }
 
-              return item.map((data, colIndex) => filterChip(index, data, colIndex));
-            })}
+            return item.map((data, colIndex) => filterChip(index, data, colIndex));
+          })}
       </div>
     );
   }

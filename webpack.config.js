@@ -5,10 +5,15 @@ module.exports = {
   entry: {
     app: "./examples/Router/index.js"
   },
+  mode: 'development',
   stats: "verbose",
   context: __dirname,
   output: {
     filename: 'bundle.js'
+  },
+  externals: {
+    "react": "React",
+    "react-dom": "ReactDOM",
   },
   devtool: 'source-map',
   devServer: {
@@ -21,13 +26,14 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.jsx?$/,
+        test: /\.(t|j)sx?$/,
         exclude: /(node_modules)/,
         use: [
-          'babel-loader',
+          'awesome-typescript-loader',
           'eslint-loader'
         ]
-      }
+      },
+      { enforce: "pre", test: /\.js$/, loader: "source-map-loader" }
     ]
   },
   plugins: [

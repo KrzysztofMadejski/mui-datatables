@@ -14,9 +14,12 @@ import * as React from 'react';
 import Select from '@material-ui/core/Select';
 import Typography from '@material-ui/core/Typography';
 import classNames from 'classnames';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, Theme } from '@material-ui/core/styles';
+import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
+import { NoState } from './NoState';
+import { MUIDataTableColumnState, MUIDataTableOptions, FilterUpdateFunc } from '../index.d';
 
-export const defaultFilterStyles = theme => ({
+export const defaultFilterStyles = (theme: Theme): Record<string, CSSProperties> => ({
   root: {
     backgroundColor: theme.palette.background.default,
     padding: '24px 24px 36px 24px',
@@ -85,7 +88,17 @@ export const defaultFilterStyles = theme => ({
   },
 });
 
-class TableFilter extends React.Component {
+interface TableFilterProps extends WithStyles<typeof defaultFilterStyles> {
+  customFooter: (filterList: any[]) => React.ReactNode;
+  columns: MUIDataTableColumnState[];
+  options: MUIDataTableOptions;
+  filterList: string[][];
+  filterData: any[][];
+  onFilterUpdate: FilterUpdateFunc;
+  onFilterReset: () => void;
+}
+
+class TableFilter extends React.Component<TableFilterProps, NoState> {
   static propTypes = {
     /** Data used to populate filter dropdown/checkbox */
     filterData: PropTypes.array.isRequired,
@@ -221,7 +234,7 @@ class TableFilter extends React.Component {
             multiple
             fullWidth
             value={filterList[index] || []}
-            renderValue={selected => selected.join(', ')}
+            renderValue={(selected:string[]) => selected.join(', ')}
             name={column.name}
             onChange={event => this.handleMultiselectChange(index, event.target.value, column.name)}
             input={<Input name={column.name} id={column.name} />}>
@@ -247,9 +260,7 @@ class TableFilter extends React.Component {
 
   renderCustomField(column, index) {
     const { classes, filterList, options } = this.props;
-    const display =
-      (column.filterOptions && column.filterOptions.display) ||
-      (options.filterOptions && options.filterOptions.display);
+    const display = column.filterOptions && column.filterOptions.display;
 
     if (!display) {
       console.error('Property "display" is required when using custom filter type.');
@@ -300,12 +311,12 @@ class TableFilter extends React.Component {
               return filterType === 'checkbox'
                 ? this.renderCheckbox(column, index)
                 : filterType === 'multiselect'
-                ? this.renderMultiselect(column, index)
-                : filterType === 'textField'
-                ? this.renderTextField(column, index)
-                : filterType === 'custom'
-                ? this.renderCustomField(column, index)
-                : this.renderSelect(column, index);
+                  ? this.renderMultiselect(column, index)
+                  : filterType === 'textField'
+                    ? this.renderTextField(column, index)
+                    : filterType === 'custom'
+                      ? this.renderCustomField(column, index)
+                      : this.renderSelect(column, index);
             }
           })}
         </GridList>

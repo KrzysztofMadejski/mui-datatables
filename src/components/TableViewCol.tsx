@@ -5,9 +5,12 @@ import Typography from '@material-ui/core/Typography';
 import FormControl from '@material-ui/core/FormControl';
 import FormGroup from '@material-ui/core/FormGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, Theme } from '@material-ui/core/styles';
+import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
+import { MUIDataTableColumnState, MUIDataTableOptions } from '../index.d';
+import { NoState } from './NoState';
 
-export const defaultViewColStyles = theme => ({
+export const defaultViewColStyles = (theme: Theme): Record<string, CSSProperties> => ({
   root: {
     padding: '16px 24px 16px 24px',
     fontFamily: 'Roboto',
@@ -41,7 +44,14 @@ export const defaultViewColStyles = theme => ({
   },
 });
 
-class TableViewCol extends React.Component {
+interface TableViewColProps extends WithStyles<typeof defaultViewColStyles> {
+  columns: MUIDataTableColumnState[];
+  data: Array<object | number[] | string[]>;
+  options: MUIDataTableOptions;
+  onColumnUpdate: (index:number) => void;
+}
+
+class TableViewCol extends React.Component<TableViewColProps, NoState> {
   static propTypes = {
     /** Columns used to describe table */
     columns: PropTypes.array.isRequired,
@@ -53,7 +63,7 @@ class TableViewCol extends React.Component {
     classes: PropTypes.object,
   };
 
-  handleColChange = index => {
+  handleColChange = (index:number): void => {
     this.props.onColumnUpdate(index);
   };
 

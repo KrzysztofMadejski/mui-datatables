@@ -1,9 +1,19 @@
+import { MUIDataTableColumnDef, MUIDataTableColumn, Display } from "./index.d";
+
 function buildMap(rows) {
   return rows.reduce((accum, { dataIndex }) => {
     accum[dataIndex] = true;
     return accum;
   }, {});
 }
+
+function isComplexColumnDef(column: MUIDataTableColumnDef): column is MUIDataTableColumn {
+  return typeof column !== 'string';
+}
+
+// function getColumnDisplay(column: MUIDataTableColumnDef): Display {
+//   return isComplexColumnDef(column) ? column.display : 'true';
+// }
 
 function getPageValue(count, rowsPerPage, page) {
   const totalPages = count <= rowsPerPage ? 1 : Math.ceil(count / rowsPerPage);
@@ -108,4 +118,4 @@ function createCSVDownload(columns, data, options, downloadCSV) {
   downloadCSV(csv, options.downloadOptions.filename);
 }
 
-export { buildMap, getPageValue, getCollatorComparator, sortCompare, createCSVDownload, buildCSV, downloadCSV };
+export { buildMap, isComplexColumnDef, getPageValue, getCollatorComparator, sortCompare, createCSVDownload, buildCSV, downloadCSV };

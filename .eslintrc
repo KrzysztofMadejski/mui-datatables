@@ -1,15 +1,13 @@
 {
-  "parser": "babel-eslint",
+  "parser": "@typescript-eslint/parser",
   "settings": {
-    "import/extensions": [".js"],
-    "import/parser": "babel-eslint",
     "import/resolver": {
-      "node": {
-        "extensions": [".js"]
-      },
       "webpack": {
         "config": "webpack.config.js"
       }
+    },
+    "react":  {
+      "version":  "detect" // Tells eslint-plugin-react to automatically detect the version of React to use
     }
   },
   "parserOptions": {
@@ -28,7 +26,10 @@
     "node": true
   },
   "extends": [
-   "plugin:jsx-a11y/recommended"
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint",
+    "eslint:recommended"
   ],
   "rules": {
     "no-console": "off",
@@ -43,6 +44,7 @@
     }]
   },
   "plugins": [
+    "@typescript-eslint",
     "import",
     "react",
     "jsx-a11y",

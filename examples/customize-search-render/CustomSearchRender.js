@@ -54,7 +54,6 @@ class CustomSearchRender extends React.Component {
             value={searchText || ''}
             onChange={this.handleTextChange}
             fullWidth={true}
-            inputRef={el => (this.searchField = el)}
           />
           <IconButton className={classes.clearIcon} onClick={onHide}>
             <ClearIcon />

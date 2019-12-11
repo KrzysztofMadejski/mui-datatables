@@ -5,18 +5,36 @@ import MuiTableBody from '@material-ui/core/TableBody';
 import TableBodyCell from './TableBodyCell';
 import TableBodyRow from './TableBodyRow';
 import TableSelectCell from './TableSelectCell';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, WithStyles } from '@material-ui/core/styles';
 import cloneDeep from 'lodash.clonedeep';
 import { getPageValue } from '../utils';
+import { CSSProperties } from '@material-ui/core/styles/withStyles';
+import { NoState } from './NoState';
+import { MUIDataTableOptions, RowsSubset, Lookup, RowMeta, SelectRowUpdateFunc, MUIDataTableColumnDef, isComplexColumnDef, MUIDataTableColumnState } from '../index.d';
 
-const defaultBodyStyles = {
+const defaultBodyStyles: Record<string, CSSProperties> = {
   root: {},
   emptyTitle: {
     textAlign: 'center',
   },
 };
 
-class TableBody extends React.Component {
+interface TableBodyProps extends WithStyles<typeof defaultBodyStyles> {
+  columns: MUIDataTableColumnState[];
+  data: Array<object | number[] | string[]>;
+  count: number;  
+  expandedRows: RowsSubset;
+  onRowClick?: (rowData: string[], rowMeta: RowMeta) => void;
+  options: MUIDataTableOptions;
+  page: number; // TODO not present in propTypes
+  previousSelectedRow?: { index: number }; 
+  rowsPerPage: number; // TODO not present in propTypes 
+  selectedRows: RowsSubset;
+  selectRowUpdate: SelectRowUpdateFunc;
+  toggleExpandRow: (lookup: Lookup) => any;
+}
+
+class TableBody extends React.Component<TableBodyProps, NoState> {
   static propTypes = {
     /** Data used to describe table */
     data: PropTypes.array.isRequired,
@@ -26,8 +44,6 @@ class TableBody extends React.Component {
     columns: PropTypes.array.isRequired,
     /** Options used to describe table */
     options: PropTypes.object.isRequired,
-    /** Data used to filter table against */
-    filterList: PropTypes.array,
     /** Callback to execute when row is clicked */
     onRowClick: PropTypes.func,
     /** Table rows expanded */
@@ -38,8 +54,6 @@ class TableBody extends React.Component {
     selectRowUpdate: PropTypes.func,
     /** The most recent row to have been selected/unselected */
     previousSelectedRow: PropTypes.object,
-    /** Data used to search table against */
-    searchText: PropTypes.string,
     /** Toggle row expandable */
     toggleExpandRow: PropTypes.func,
     /** Extend the style applied to components */
@@ -55,7 +69,7 @@ class TableBody extends React.Component {
 
     if (this.props.options.serverSide) return data.length ? data : null;
 
-    let rows = [];
+    let rows: any[] = [];
     const highestPageInRange = getPageValue(count, rowsPerPage, page);
     const fromIndex = highestPageInRange === 0 ? 0 : highestPageInRange * rowsPerPage;
     const toIndex = Math.min(count, (highestPageInRange + 1) * rowsPerPage);
@@ -71,7 +85,7 @@ class TableBody extends React.Component {
     return rows.length ? rows : null;
   }
 
-  getRowIndex(index) {
+  getRowIndex(index: number): number {
     const { page, rowsPerPage, options } = this.props;
 
     if (options.serverSide) {
@@ -82,17 +96,17 @@ class TableBody extends React.Component {
     return startIndex + index;
   }
 
-  isRowSelected(dataIndex) {
+  isRowSelected(dataIndex: number): boolean {
     const { selectedRows } = this.props;
-    return selectedRows.lookup && selectedRows.lookup[dataIndex] ? true : false;
+    return selectedRows.lookup && dataIndex in selectedRows.lookup && selectedRows.lookup[dataIndex];
   }
 
-  isRowExpanded(dataIndex) {
+  isRowExpanded(dataIndex: number): boolean {
     const { expandedRows } = this.props;
-    return expandedRows.lookup && expandedRows.lookup[dataIndex] ? true : false;
+    return expandedRows.lookup && dataIndex in expandedRows.lookup && expandedRows.lookup[dataIndex];
   }
 
-  isRowSelectable(dataIndex, selectedRows) {
+  isRowSelectable(dataIndex: number, selectedRows?: RowsSubset) {
     const { options } = this.props;
     selectedRows = selectedRows || this.props.selectedRows;
 
@@ -103,8 +117,10 @@ class TableBody extends React.Component {
     }
   }
 
-  isRowExpandable(dataIndex) {
-    const { options, expandedRows } = this.props;
+  isRowExpandable(dataIndex: number, expandedRows?: RowsSubset) {
+    const { options } = this.props;
+    expandedRows = expandedRows || this.props.expandedRows;
+
     if (options.isRowExpandable) {
       return options.isRowExpandable(dataIndex, expandedRows);
     } else {
@@ -114,7 +130,7 @@ class TableBody extends React.Component {
 
   handleRowSelect = (data, event) => {
     let shiftKey = event && event.nativeEvent ? event.nativeEvent.shiftKey : false;
-    let shiftAdjacentRows = [];
+    let shiftAdjacentRows: Lookup[] = [];
     let previousSelectedRow = this.props.previousSelectedRow;
 
     // If the user is pressing shift and has previously clicked another row.
@@ -123,7 +139,7 @@ class TableBody extends React.Component {
 
       // Create a copy of the selectedRows object. This will be used and modified
       // below when we see if we can add adjacent rows.
-      let selectedRows = cloneDeep(this.props.selectedRows);
+      let selectedRows: RowsSubset = cloneDeep(this.props.selectedRows);
 
       // Add the clicked on row to our copy of selectedRows (if it isn't already present).
       let clickedDataIndex = this.props.data[data.index].dataIndex;
@@ -139,7 +155,7 @@ class TableBody extends React.Component {
         let dataIndex = this.props.data[curIndex].dataIndex;
 
         if (this.isRowSelectable(dataIndex, selectedRows)) {
-          let lookup = {
+          let lookup: Lookup = {
             index: curIndex,
             dataIndex: dataIndex,
           };
@@ -207,6 +223,7 @@ class TableBody extends React.Component {
   render() {
     const { classes, columns, toggleExpandRow, options } = this.props;
     const tableRows = this.buildRows();
+    // TODO what columns contains?
     const visibleColCnt = columns.filter(c => c.display === 'true').length;
 
     return (
@@ -269,7 +286,7 @@ class TableBody extends React.Component {
                       ),
                   )}
                 </TableBodyRow>
-                {this.isRowExpanded(dataIndex) && options.renderExpandableRow(row, { rowIndex, dataIndex })}
+                {this.isRowExpanded(dataIndex) && options.renderExpandableRow !== undefined && options.renderExpandableRow(row, { rowIndex, dataIndex })}
               </React.Fragment>
             );
           })

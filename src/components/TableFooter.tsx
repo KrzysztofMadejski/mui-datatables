@@ -3,11 +3,22 @@ import * as PropTypes from 'prop-types';
 import MuiTable from '@material-ui/core/Table';
 import TableHead from './TableHead';
 import TablePagination from './TablePagination';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, WithStyles } from '@material-ui/core/styles';
+import { MUIDataTableOptions } from '../index.d';
+import { CSSProperties } from '@material-ui/core/styles/withStyles';
+import { NoState } from './NoState';
 
-export const defaultFooterStyles = {};
+export interface TableFooterProps { 
+  changePage: (page:number)=>void;
+  changeRowsPerPage: (rows:number)=>void;
 
-class TableFooter extends React.Component {
+  options: MUIDataTableOptions;
+  page: number;  
+  rowCount: number;
+  rowsPerPage: number; 
+}
+
+class TableFooter extends React.Component<TableFooterProps, NoState> {
   static propTypes = {};
 
   render() {
