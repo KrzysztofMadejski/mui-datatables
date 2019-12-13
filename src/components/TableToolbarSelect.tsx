@@ -5,9 +5,12 @@ import IconButton from '@material-ui/core/IconButton';
 import Tooltip from '@material-ui/core/Tooltip';
 import Typography from '@material-ui/core/Typography';
 import DeleteIcon from '@material-ui/icons/Delete';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, Theme } from '@material-ui/core/styles';
+import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
+import { NoState } from './NoState';
+import { MUIDataTableOptions, DisplayData, RowsSubset, SelectRowUpdateFunc } from '../index.d';
 
-const defaultToolbarSelectStyles = theme => ({
+const defaultToolbarSelectStyles = (theme: Theme): Record<string, CSSProperties> => ({
   root: {
     backgroundColor: theme.palette.background.default,
     flex: '1 1 100%',
@@ -28,12 +31,18 @@ const defaultToolbarSelectStyles = theme => ({
   deleteIcon: {},
 });
 
-class TableToolbarSelect extends React.Component {
+interface TableToolbarSelectProps extends WithStyles<typeof defaultToolbarSelectStyles> {
+  displayData: DisplayData;
+  options: MUIDataTableOptions;
+  onRowsDelete: () => void;
+  selectedRows: RowsSubset;
+  selectRowUpdate: SelectRowUpdateFunc;
+}
+
+class TableToolbarSelect extends React.Component<TableToolbarSelectProps, NoState> {
   static propTypes = {
     /** Options used to describe table */
     options: PropTypes.object.isRequired,
-    /** Current row selected or not */
-    rowSelected: PropTypes.bool,
     /** Callback to trigger selected rows delete */
     onRowsDelete: PropTypes.func,
     /** Extend the style applied to components */

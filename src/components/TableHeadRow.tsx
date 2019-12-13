@@ -2,13 +2,18 @@ import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import TableRow from '@material-ui/core/TableRow';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, WithStyles } from '@material-ui/core/styles';
+import { NoState } from './NoState';
+import { CSSProperties } from '@material-ui/core/styles/withStyles';
 
-const defaultHeadRowStyles = {
+const defaultHeadRowStyles: Record<string, CSSProperties> = {
   root: {},
 };
 
-class TableHeadRow extends React.Component {
+interface TableHeadRowProps extends WithStyles<typeof defaultHeadRowStyles> {
+}
+
+class TableHeadRow extends React.Component<TableHeadRowProps, NoState> {
   static propTypes = {
     /** Extend the style applied to components */
     classes: PropTypes.object,

@@ -10,7 +10,7 @@ import cloneDeep from 'lodash.clonedeep';
 import { getPageValue } from '../utils';
 import { CSSProperties } from '@material-ui/core/styles/withStyles';
 import { NoState } from './NoState';
-import { MUIDataTableOptions, RowsSubset, Lookup, RowMeta, SelectRowUpdateFunc, MUIDataTableColumnDef, isComplexColumnDef, MUIDataTableColumnState } from '../index.d';
+import { MUIDataTableOptions, RowsSubset, Lookup, RowMeta, SelectRowUpdateFunc, MUIDataTableColumnDef, MUIDataTableColumnState, DisplayData } from '../index.d';
 
 const defaultBodyStyles: Record<string, CSSProperties> = {
   root: {},
@@ -21,7 +21,7 @@ const defaultBodyStyles: Record<string, CSSProperties> = {
 
 interface TableBodyProps extends WithStyles<typeof defaultBodyStyles> {
   columns: MUIDataTableColumnState[];
-  data: Array<object | number[] | string[]>;
+  data: DisplayData;
   count: number;  
   expandedRows: RowsSubset;
   onRowClick?: (rowData: string[], rowMeta: RowMeta) => void;
@@ -174,7 +174,7 @@ class TableBody extends React.Component<TableBodyProps, NoState> {
     this.props.selectRowUpdate('cell', data, shiftAdjacentRows);
   };
 
-  handleRowClick = (row, data, event) => {
+  handleRowClick = (row:any, data: { rowIndex:number, dataIndex: any }, event: React.MouseEvent<HTMLTableRowElement>) => {
     // Don't trigger onRowClick if the event was actually the expandable icon.
     if (
       event.target.id === 'expandable-button' ||
@@ -186,7 +186,7 @@ class TableBody extends React.Component<TableBodyProps, NoState> {
         console.warn(
           'Deprecated: Clicks on expandable button will not trigger onRowClick in an upcoming release, see: https://github.com/gregnb/mui-datatables/issues/516.',
         );
-        this.props.options.onRowClick(row, data, event);
+        this.props.options.onRowClick(row, data);
       }
 
       return;
@@ -246,7 +246,7 @@ class TableBody extends React.Component<TableBodyProps, NoState> {
                   data-testid={'MUIDataTableBodyRow-' + dataIndex}
                   id={'MUIDataTableBodyRow-' + dataIndex}>
                   <TableSelectCell
-                    onChange={this.handleRowSelect.bind(null, {
+                    onChange={this.handleRowSelect.bind(null, { // TODO on change is not implemented
                       index: this.getRowIndex(rowIndex),
                       dataIndex: dataIndex,
                     })}
@@ -254,6 +254,7 @@ class TableBody extends React.Component<TableBodyProps, NoState> {
                       index: this.getRowIndex(rowIndex),
                       dataIndex: dataIndex,
                     })}
+                    // @ts-ignore
                     fixedHeader={options.fixedHeader}
                     fixedHeaderOptions={options.fixedHeaderOptions}
                     checked={this.isRowSelected(dataIndex)}

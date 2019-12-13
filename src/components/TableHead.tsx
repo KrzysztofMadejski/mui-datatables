@@ -8,7 +8,8 @@ import TableHeadRow from './TableHeadRow';
 import TableSelectCell from './TableSelectCell';
 import { NoState } from './NoState';
 import { CSSProperties } from '@material-ui/core/styles/withStyles';
-import { MUIDataTableColumnState, MUIDataTableOptions, SelectRowUpdateFunc, MUIDataTableStateRows } from '../index.d';
+import { MUIDataTableColumnState, MUIDataTableOptions, SelectRowUpdateFunc, RowsSubset, DisplayData } from '../index.d';
+import { TableCellProps } from '@material-ui/core/TableCell';
 
 const defaultHeadStyles = (theme): Record<string, CSSProperties> => ({
   main: {},
@@ -23,22 +24,18 @@ interface TableHeadProps extends WithStyles<typeof defaultHeadStyles> {
   activeColumn: string | null;
   columns: MUIDataTableColumnState[];
   count: number;  
-  data: Array<object | number[] | string[]>;  
+  data: DisplayData;
   options: MUIDataTableOptions;
   page: number; // TODO not present in propTypes
   rowsPerPage: number; // TODO not present in propTypes 
-  selectedRows: MUIDataTableStateRows;
+  selectedRows: RowsSubset;
   selectRowUpdate: SelectRowUpdateFunc;  
   setCellRef: (index:number, el:any) => void;
   toggleSort: (index: number) => void;
 }
 
 class TableHead extends React.Component<TableHeadProps, NoState> {
-  componentDidMount() {
-    this.props.handleHeadUpdateRef(this.handleUpdateCheck);
-  }
-
-  handleToggleColumn = index => {
+  handleToggleColumn = (index: number):void => {
     this.props.toggleSort(index);
   };
 
@@ -84,6 +81,7 @@ class TableHead extends React.Component<TableHeadProps, NoState> {
             isHeaderCell={true}
             expandableOn={options.expandableRows}
             selectableOn={options.selectableRows}
+            // @ts-ignore
             fixedHeader={options.fixedHeader}
             fixedHeaderOptions={options.fixedHeaderOptions}
             selectableRowsHeader={options.selectableRowsHeader}
@@ -97,7 +95,7 @@ class TableHead extends React.Component<TableHeadProps, NoState> {
               ) : (
                 <TableHeadCell
                   cellHeaderProps={
-                    columns[index].setCellHeaderProps ? columns[index].setCellHeaderProps({ index, ...column }) : {}
+                    columns[index].setCellHeaderProps ? columns[index].setCellHeaderProps({ index, ...column }) : {} as TableCellProps
                   }
                   key={index}
                   index={index}

@@ -1,9 +1,10 @@
 import * as React from 'react';
 import * as PropTypes from 'prop-types';
 import { findDOMNode } from 'react-dom';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, WithStyles } from '@material-ui/core/styles';
+import { CSSProperties } from '@material-ui/core/styles/withStyles';
 
-const defaultResizeStyles = {
+const defaultResizeStyles: Record<string, CSSProperties> = {
   root: {
     position: 'absolute',
   },
@@ -17,18 +18,43 @@ const defaultResizeStyles = {
   },
 };
 
-class TableResize extends React.Component {
+export interface TableResizeProps extends WithStyles<typeof defaultResizeStyles> {
+  setResizeable: (callback: (cellsRef, tableRef) => void) => void;
+  updateDividers: (callback: () => void) => void;
+}
+
+export interface TableResizeState {
+  resizeCoords: Record<string, {left: number;}>;
+  priorPosition: Record<string, number>;
+  startPosition: number;
+  tableWidth: number;
+  tableHeight: number;
+  isResize: boolean;
+  updateCoords: boolean;
+  id: string | null;
+}
+
+type CellsRef = Record<string, HTMLElement>;
+
+class TableResize extends React.Component<TableResizeProps, TableResizeState> {
+  windowWidth: number | null;
+  cellsRef: CellsRef;
+  tableRef: React.ReactInstance;
+
   static propTypes = {
     /** Extend the style applied to components */
     classes: PropTypes.object,
   };
 
   state = {
-    resizeCoords: {},
-    priorPosition: {},
+    resizeCoords: {} as Record<string, {left: number;}>,
+    priorPosition: {} as Record<string, number>,
     startPosition: 0,
-    tableWidth: '100%',
-    tableHeight: '100%',
+    tableWidth: 0, // '100%', // TODO this should be number
+    tableHeight: 0, // '100%', // TODO this should be number
+    isResize: false,
+    updateCoords: false,
+    id: null,
   };
 
   handleResize = () => {
@@ -49,14 +75,14 @@ class TableResize extends React.Component {
     window.removeEventListener('resize', this.handleResize, false);
   }
 
-  setCellRefs = (cellsRef, tableRef) => {
+  setCellRefs = (cellsRef: CellsRef, tableRef: React.ReactInstance):void => {
     this.cellsRef = cellsRef;
     this.tableRef = tableRef;
     this.setDividers();
   };
 
   setDividers = () => {
-    const tableEl = findDOMNode(this.tableRef);
+    const tableEl = findDOMNode(this.tableRef) as HTMLElement;
     const { width: tableWidth, height: tableHeight } = tableEl.getBoundingClientRect();
     const { priorPosition, resizeCoords } = this.state;
 
@@ -69,7 +95,7 @@ class TableResize extends React.Component {
       const elStyle = window.getComputedStyle(item, null);
       const left = resizeCoords[key] !== undefined ? resizeCoords[key].left : undefined;
       const oldLeft = priorPosition[key] || 0;
-      let newLeft = elRect.left + item.offsetWidth - parseInt(elStyle.paddingLeft) / 2;
+      let newLeft:number = elRect.left + item.offsetWidth - parseInt(elStyle.paddingLeft) / 2;
 
       if (left === oldLeft) return;
 
@@ -93,11 +119,11 @@ class TableResize extends React.Component {
     });
   };
 
-  onResizeStart = (id, e) => {
+  onResizeStart = (id: string, e: React.MouseEvent<HTMLDivElement>) => {
     this.setState({ isResize: true, id, startPosition: e.clientX });
   };
 
-  onResizeMove = (id, e) => {
+  onResizeMove = (id: string, e: React.MouseEvent<HTMLDivElement>) => {
     const { startPosition, isResize, resizeCoords } = this.state;
 
     if (isResize) {
@@ -110,7 +136,7 @@ class TableResize extends React.Component {
     }
   };
 
-  onResizeEnd = (id, e) => {
+  onResizeEnd = (id: string, e: React.MouseEvent<HTMLDivElement>) => {
     this.setState({ isResize: false, id: null });
   };
 

@@ -3,8 +3,11 @@ import * as PropTypes from 'prop-types';
 import classNames from 'classnames';
 import TableRow from '@material-ui/core/TableRow';
 import { withStyles } from '@material-ui/core/styles';
+import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
+import { NoState } from './NoState';
+import { MUIDataTableOptions } from '../index.d';
 
-const defaultBodyRowStyles = theme => ({
+const defaultBodyRowStyles = (theme): Record<string, CSSProperties> => ({
   root: {},
   hover: {},
   hoverCursor: { cursor: 'pointer' },
@@ -15,7 +18,14 @@ const defaultBodyRowStyles = theme => ({
   },
 });
 
-class TableBodyRow extends React.Component {
+interface TableBodyRowProps extends WithStyles<typeof defaultBodyRowStyles> {
+  options: MUIDataTableOptions;
+  rowSelected: boolean;
+  onClick: React.MouseEventHandler<HTMLTableRowElement>;
+  className: string;
+}
+
+class TableBodyRow extends React.Component<TableBodyRowProps, NoState> {
   static propTypes = {
     /** Options used to describe table */
     options: PropTypes.object.isRequired,

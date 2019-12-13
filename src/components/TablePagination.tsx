@@ -5,8 +5,11 @@ import MuiTableFooter from '@material-ui/core/TableFooter';
 import MuiTablePagination from '@material-ui/core/TablePagination';
 import { withStyles } from '@material-ui/core/styles';
 import { getPageValue } from '../utils';
+import { NoState } from './NoState';
+import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
+import { MUIDataTableOptions } from '../index.d';
 
-const defaultPaginationStyles = {
+const defaultPaginationStyles:Record<string, CSSProperties> = {
   root: {
     '&:last-child': {
       padding: '0px 24px 0px 24px',
@@ -26,7 +29,16 @@ const defaultPaginationStyles = {
   },
 };
 
-class TablePagination extends React.Component {
+interface TablePaginationProps extends WithStyles<typeof defaultPaginationStyles> {
+  changePage: (page:number)=>void;
+  changeRowsPerPage: (rows:number)=>void;
+  count: number;
+  options: MUIDataTableOptions;
+  page: number;
+  rowsPerPage: number;
+}
+
+class TablePagination extends React.Component<TablePaginationProps, NoState> {
   static propTypes = {
     /** Total number of table rows */
     count: PropTypes.number.isRequired,
@@ -40,11 +52,11 @@ class TablePagination extends React.Component {
     changeRowsPerPage: PropTypes.func.isRequired,
   };
 
-  handleRowChange = event => {
-    this.props.changeRowsPerPage(event.target.value);
+  handleRowChange = (event:React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    this.props.changeRowsPerPage(parseInt(event.target.value));
   };
 
-  handlePageChange = (_, page) => {
+  handlePageChange = (_:React.MouseEvent<HTMLButtonElement> | null, page: number):void => {
     this.props.changePage(page);
   };
 
@@ -55,6 +67,8 @@ class TablePagination extends React.Component {
     return (
       <MuiTableFooter>
         <MuiTableRow>
+          { /*
+          // @ts-ignore ''data-testid'' does not exist in type 'Partial<MenuProps> */}
           <MuiTablePagination
             className={classes.root}
             classes={{

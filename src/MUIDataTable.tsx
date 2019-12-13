@@ -18,7 +18,7 @@ import TableToolbar from './components/TableToolbar';
 import TableToolbarSelect from './components/TableToolbarSelect';
 import getTextLabels from './textLabels';
 import { buildMap, getCollatorComparator, sortCompare, getPageValue, isComplexColumnDef } from './utils';
-import { Lookup, SelectRowUpdateFunc, MUIDataTableColumnDef, MUIDataTableOptions, MUIDataTableColumnState, MUIDataTableStateRows, FilterType, FilterUpdateFunc, DisplayData } from './index.d';
+import { Lookup, SelectRowUpdateFunc, MUIDataTableColumnDef, MUIDataTableOptions, MUIDataTableColumnState, RowsSubset, FilterType, FilterUpdateFunc, DisplayData, SelectRowUpdateType } from './index.d';
 import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
 
 const defaultTableStyles = (theme): Record<string, CSSProperties> => ({
@@ -103,14 +103,14 @@ export interface MUIDataTableState {
   count: number;
   data: any[];
   displayData: DisplayData;
-  expandedRows: MUIDataTableStateRows;
+  expandedRows: RowsSubset;
   filterData: any[][];
   filterList: string[][];
   page: number;
   rowsPerPage: number;
   rowsPerPageOptions: number[];
   searchText: string | null;
-  selectedRows: MUIDataTableStateRows;
+  selectedRows: RowsSubset;
   showResponsive: boolean;
 }
 
@@ -119,8 +119,8 @@ class MUIDataTable extends React.Component<MUIDataTableProps, MUIDataTableState>
   tableRef: React.RefObject<React.ReactInstance>;
   tableContent: React.RefObject<React.ReactInstance>;
   // this.headCellRefs = {}; TODO TableHead
-  // this.setHeadResizeable = () => {}; TODO TableResize.setResizeable
-  // this.updateDividers = () => {}; TODO TableResize.updateDividers
+  setHeadResizeable = (cellsRef, tableRef) => void; // TableResize.setResizeable
+  updateDividers = () => void; // TableResize.updateDividers
 
   static propTypes = {
     /** Title of the table */
@@ -871,7 +871,7 @@ class MUIDataTable extends React.Component<MUIDataTableProps, MUIDataTableState>
     };
   };
 
-  getDisplayData(columns, data, filterList, searchText, tableMeta) {
+  getDisplayData(columns, data, filterList, searchText, tableMeta): DisplayData {
     let newRows = [];
     const dataForTableMeta = tableMeta ? tableMeta.tableData : this.props.data;
 
@@ -1180,7 +1180,7 @@ class MUIDataTable extends React.Component<MUIDataTableProps, MUIDataTableState>
     );
   };
 
-  selectRowUpdate: SelectRowUpdateFunc = (type, value, shiftAdjacentRows = []) => {
+  selectRowUpdate: SelectRowUpdateFunc = (type: SelectRowUpdateType, value: RowsSubset, shiftAdjacentRows = []) => {
     // safety check
     const { selectableRows } = this.options;
     if (selectableRows === 'none') {

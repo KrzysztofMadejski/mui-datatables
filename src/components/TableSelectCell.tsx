@@ -4,10 +4,12 @@ import classNames from 'classnames';
 import Checkbox from '@material-ui/core/Checkbox';
 import TableCell from '@material-ui/core/TableCell';
 import IconButton from '@material-ui/core/IconButton';
-import { withStyles } from '@material-ui/core/styles';
+import { withStyles, Theme } from '@material-ui/core/styles';
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight';
+import { CSSProperties, WithStyles } from '@material-ui/core/styles/withStyles';
+import { NoState } from './NoState';
 
-const defaultSelectCellStyles = theme => ({
+const defaultSelectCellStyles = (theme: Theme): Record<string, CSSProperties> => ({
   root: {},
   fixedHeader: {
     position: 'sticky',
@@ -46,7 +48,23 @@ const defaultSelectCellStyles = theme => ({
   disabled: {},
 });
 
-class TableSelectCell extends React.Component {
+interface TableSelectCellProps extends WithStyles<typeof defaultSelectCellStyles> {
+  // checked: boolean;
+  // classes?: object;
+  expandableOn: boolean;
+  fixedHeader: boolean;
+  fixedHeaderOptions: { xAxis: boolean, yAxis: boolean };
+  hideExpandButton: boolean;
+  isHeaderCell: boolean;
+  isRowExpanded: boolean;
+  isRowSelectable: boolean;
+  onExpand: React.MouseEventHandler<HTMLElement>;
+  // onChange // TODO is not implemented but used by others
+  selectableOn: string;
+  selectableRowsHeader: boolean;
+}
+
+class TableSelectCell extends React.Component<TableSelectCellProps, NoState> {
   static propTypes = {
     /** Select cell checked on/off */
     checked: PropTypes.bool.isRequired,
@@ -57,8 +75,6 @@ class TableSelectCell extends React.Component {
       xAxis: PropTypes.bool,
       yAxis: PropTypes.bool,
     }),
-    /** Callback to trigger cell update */
-    onChange: PropTypes.func,
     /** Extend the style applied to components */
     classes: PropTypes.object,
     /** Is expandable option enabled */
